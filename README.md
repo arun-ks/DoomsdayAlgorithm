@@ -8,7 +8,7 @@ This repo does not teach you how to how to determine the DotW, the video & wiki 
 
 The repo has a [standalone HTML5 page](https://arun-ks.github.io/DoomsdayAlgorithm/) which can be used to practice your mastery. 
 
-Alternately, you can use the UNIX Shell script](https://github.com/arun-ks/DoomsdayAlgorithm/blob/main/DoomsdayCalculateCalendarDay.sh) to practice the same.
+Alternately, you can use the [UNIX Shell script](https://github.com/arun-ks/DoomsdayAlgorithm/blob/main/DoomsdayCalculateCalendarDay.sh) to practice the same.
 
 Note that for now, both of them are configured to test you for dates between 1-Jan-2025 & 1-Jan-2027. These can be extended by updating the respective code.
 
