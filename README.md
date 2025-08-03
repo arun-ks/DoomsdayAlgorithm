@@ -6,7 +6,7 @@ This method requires trivial memorization (of 'Memorable dates') & simple arithm
 # What does this repo do ?
 This repo does not teach you how to how to determine the DotW, the video & wiki page do an excellect job for that.
 
-The repo has a standalone page which can be used to practice your mastery. The [HTML5 version]((https://arun-ks.github.io/DoomsdayAlgorithm/)) allow
+The repo has a [standalone HTML5 page](https://arun-ks.github.io/DoomsdayAlgorithm/) which can be used to practice your mastery. 
 
 Alternately, you can use the UNIX Shell script](https://github.com/arun-ks/DoomsdayAlgorithm/blob/main/DoomsdayCalculateCalendarDay.sh) to practice the same.
 
