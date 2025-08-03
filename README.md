@@ -18,7 +18,7 @@ The initial version of the code was generated using Copilot. The quick prototypi
 The final code was created after many back-and-forth as the generated code had to be troubleshooted.
 
 
-### Prompt used 
+### Prompts used to generate initial version
 <details closed>
 <summary>Copilot prompt to generate UNIX Script  </summary>
 
@@ -35,9 +35,11 @@ The loop should exit if user inputs date of week as 99
 
 <details closed>
 <summary>Copilot prompt to generate HTML5 version</summary>
+  
 ```
 now, I need a standalone HTML version for this.
 The page should generate random date, but instead of typing user input, I should have 7 boxes for each day (include the number 0-6 in the captions along with the name of the day).
 The score should be easily visible too.
 ```
+
 </details>
