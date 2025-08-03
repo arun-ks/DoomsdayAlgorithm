@@ -1,5 +1,5 @@
 # What is Doomsday Algorithm ?
-This was inspired by [this video](https://www.youtube.com/watch?v=z2x3SSBVGJU) which explains the [Doomsday Rule](https://en.wikipedia.org/wiki/Doomsday_rule), which is an algorithm of determination of the day of the week(**DotW**) for a given day.
+This was inspired by [this video](https://www.youtube.com/watch?v=z2x3SSBVGJU) which explains the [Doomsday Rule](https://en.wikipedia.org/wiki/Doomsday_rule), which is an algorithm for determination of the day of the week(**DotW**) for a given day.
 
 This method requires trivial memorization (of 'Memorable dates') & simple arithmetic to detemine the DotW.
 
