@@ -1,0 +1,76 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Guess the Day Game</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        .day-button { margin: 5px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        #score { font-size: 18px; margin-top: 20px; }
+        #result { font-size: 18px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Guess the Day of the Week</h1>
+    <p id="dateDisplay"></p>
+    <div id="buttonsContainer"></div>
+    <div id="result"></div>
+    <div id="score">Score: 0 / 0</div>
+
+    <script>
+        const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        let correct = 0;
+        let total = 0;
+        let currentDate = null;
+        let actualDay = null;
+
+        function getRandomDate() {
+            const start = new Date("2025-01-01").getTime();
+            const end = new Date("2027-01-01").getTime();
+            const randomTime = start + Math.random() * (end - start);
+            const date = new Date(randomTime);
+            return date;
+        }
+
+        function formatDate(date) {
+            const options = { day: '2-digit', month: 'short', year: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        }
+
+        function updateDate() {
+            currentDate = getRandomDate();
+            actualDay = currentDate.getDay();
+            document.getElementById("dateDisplay").textContent = "Guess the day for: " + formatDate(currentDate);
+            document.getElementById("result").textContent = "";
+        }
+
+        function handleGuess(guess) {
+            total++;
+            let resultText = "You guessed: " + days[guess] + " | Actual day: " + days[actualDay];
+            if (guess === actualDay) {
+                correct++;
+                resultText += " - Correct!";
+            } else {
+                resultText += " - Incorrect.";
+            }
+            document.getElementById("result").textContent = resultText;
+            document.getElementById("score").textContent = "Score: " + correct + " / " + total;
+            updateDate();
+        }
+
+        function createButtons() {
+            const container = document.getElementById("buttonsContainer");
+            for (let i = 0; i < days.length; i++) {
+                const btn = document.createElement("button");
+                btn.textContent = i + " - " + days[i];
+                btn.className = "day-button";
+                btn.onclick = () => handleGuess(i);
+                container.appendChild(btn);
+            }
+        }
+
+        createButtons();
+        updateDate();
+    </script>
+</body>
+</html>
