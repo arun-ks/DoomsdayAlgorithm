@@ -1,75 +1,82 @@
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Guess the Day Game</title>
+    <meta charset="UTF-8">
+    <title>Doomsday Method Practice</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-        .day-button { margin: 5px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
-        #score { font-size: 18px; margin-top: 20px; }
-        #result { font-size: 18px; margin-top: 10px; }
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h2 { color: #333; }
+        #dateDisplay { font-size: 2em; font-weight: bold; margin: 20px 0; }
+        .day-button { margin: 5px; padding: 10px 20px; font-size: 16px; }
+        #score { margin-top: 20px; font-size: 18px; }
+        #logLabel { margin-top: 30px; font-weight: bold; }
+        #logBox { width: 100%; height: 200px; margin-top: 5px; font-family: monospace; white-space: pre-wrap; overflow-y: scroll; }
     </style>
 </head>
 <body>
-    <h1>Guess the Day of the Week</h1>
-    <p id="dateDisplay"></p>
-    <div id="buttonsContainer"></div>
-    <div id="result"></div>
+    <h2>Calculate the Day of the Week</h2>
+    <div id="dateDisplay">Loading...</div>
+    <div id="buttons"></div>
     <div id="score">Score: 0 / 0</div>
+    <div id="logLabel">Game Log:</div>
+    <textarea id="logBox" readonly></textarea>
 
     <script>
         const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
         let correct = 0;
         let total = 0;
+        let attempt = 0;
         let currentDate = null;
-        let actualDay = null;
+        let currentDay = null;
+        let startTime = null;
 
         function getRandomDate() {
             const start = new Date("2025-01-01").getTime();
             const end = new Date("2027-01-01").getTime();
-            const randomTime = start + Math.random() * (end - start);
-            const date = new Date(randomTime);
-            return date;
+            const rand = new Date(start + Math.random() * (end - start));
+            return rand;
         }
 
         function formatDate(date) {
             const options = { day: '2-digit', month: 'short', year: 'numeric' };
-            return date.toLocaleDateString('en-US', options);
+            return date.toLocaleDateString('en-GB', options);
         }
 
         function updateDate() {
             currentDate = getRandomDate();
-            actualDay = currentDate.getDay();
-            document.getElementById("dateDisplay").textContent = "Guess the day for: " + formatDate(currentDate);
-            document.getElementById("result").textContent = "";
+            currentDay = currentDate.getDay();
+            document.getElementById("dateDisplay").textContent = formatDate(currentDate);
+            startTime = performance.now();
         }
 
         function handleGuess(guess) {
+            const endTime = performance.now();
+            const timeTaken = ((endTime - startTime) / 1000).toFixed(1);
             total++;
-            let resultText = "You guessed: " + days[guess] + " | Actual day: " + days[actualDay];
-            if (guess === actualDay) {
-                correct++;
-                resultText += " - Correct!";
-            } else {
-                resultText += " - Incorrect.";
-            }
-            document.getElementById("result").textContent = resultText;
-            document.getElementById("score").textContent = "Score: " + correct + " / " + total;
+            attempt++;
+            const guessDay = days[guess];
+            const actualDay = days[currentDay];
+            const result = guess === currentDay ? "Correct" : "Incorrect";
+            if (guess === currentDay) correct++;
+            document.getElementById("score").textContent = `Score: ${correct} / ${total}`;
+            const logEntry = `Attempt #${String(attempt).padStart(2, '0')}:   ${formatDate(currentDate)}, You guessed: ${guessDay}, Actual: ${actualDay} → ${result} (Time: ${timeTaken}s)`;
+            document.getElementById("logBox").value += logEntry + "\n";
             updateDate();
         }
 
-        function createButtons() {
-            const container = document.getElementById("buttonsContainer");
-            for (let i = 0; i < days.length; i++) {
+        function setupButtons() {
+            const container = document.getElementById("buttons");
+            days.forEach((day, index) => {
                 const btn = document.createElement("button");
-                btn.textContent = i + " - " + days[i];
+                btn.textContent = `${index}-${day}`;
                 btn.className = "day-button";
-                btn.onclick = () => handleGuess(i);
+                btn.onclick = () => handleGuess(index);
                 container.appendChild(btn);
-            }
+            });
         }
 
-        createButtons();
+        setupButtons();
         updateDate();
     </script>
 </body>
