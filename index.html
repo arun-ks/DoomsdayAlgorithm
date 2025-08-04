@@ -5,53 +5,112 @@
     <meta charset="UTF-8">
     <title>Doomsday Method Practice</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; max-width: 900px; margin: auto; }
-        h2 { font-size: 1.8em; }
-        #dateDisplay { font-size: 2em; margin: 20px 0; }
-        .button-container { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-        .day-button { padding: 10px 20px; font-size: 1.2em; cursor: pointer; }
-        #score { margin: 20px 0; font-size: 1.2em; }
-        #logLabel { font-weight: bold; margin-top: 30px; }
-        #logBox { width: 100%; max-width: 900px; height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; white-space: pre-wrap; background: #f9f9f9; }
-        .correct { color: green; }
-        .incorrect { color: red; }
-        .slider-container { margin: 20px 0; }
-        .slider-label { margin-right: 10px; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            max-width: 900px;
+        }
+        h2 {
+            font-size: 1.8em;
+        }
+        #dateDisplay {
+            font-size: 2em;
+            margin: 20px 0;
+        }
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .day-button {
+            flex: 1 1 calc(25% - 10px);
+            min-width: 100px;
+            padding: 10px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        #scoreDisplay {
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        #logLabel {
+            font-weight: bold;
+            margin-top: 30px;
+        }
+        #logBox {
+            width: 100%;
+            max-width: 900px;
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            font-family: monospace;
+            background-color: #f9f9f9;
+            margin-bottom: 10px;
+        }
+        .log-entry.correct {
+            color: green;
+        }
+        .log-entry.incorrect {
+            color: red;
+        }
+        #controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        .slider-container {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        @media (min-width: 600px) {
+            .button-container {
+                flex-wrap: nowrap;
+            }
+            .day-button {
+                flex: 1;
+            }
+        }
     </style>
 </head>
 <body>
     <h2>Calculate the Day of the Week</h2>
-
     <div class="slider-container">
-        <label class="slider-label">Start Year:</label>
-        <input type="range" id="startYearSlider" min="1600" max="2300" value="2025" oninput="updateYearLabels()">
-        <span id="startYearLabel">2025</span>
-        <br>
-        <label class="slider-label">End Year:</label>
-        <input type="range" id="endYearSlider" min="1600" max="2300" value="2027" oninput="updateYearLabels()">
-        <span id="endYearLabel">2027</span>
+        <div class="slider-group">
+            <label for="startYear">Start Year: <span id="startYearLabel">2025</span></label>
+            <input type="range" id="startYear" min="1600" max="2300" value="2025">
+        </div>
+        <div class="slider-group">
+            <label for="endYear">End Year: <span id="endYearLabel">2027</span></label>
+            <input type="range" id="endYear" min="1600" max="2300" value="2027">
+        </div>
     </div>
-
-    <div id="dateDisplay">Date</div>
-    <div class="button-container" id="buttonContainer"></div>
-    <div id="score">Score: 0/0</div>
-    <button onclick="clearLog()">Clear Log</button>
-    <button onclick="downloadLog()">Download Log</button>
+    <div id="dateDisplay">Loading...</div>
+    <div class="button-container" id="buttons"></div>
+    <div id="scoreDisplay">Score: 0 / 0</div>
     <div id="logLabel">Game Log:</div>
     <div id="logBox"></div>
+    <div id="controls">
+        <button onclick="clearLog()">Clear Log</button>
+        <button onclick="downloadLog()">Download Log</button>
+    </div>
 
     <script>
         const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
         let correctCount = 0;
         let totalCount = 0;
         let currentDate = null;
+        let currentDay = null;
         let startTime = null;
-
-        function updateYearLabels() {
-            document.getElementById("startYearLabel").textContent = document.getElementById("startYearSlider").value;
-            document.getElementById("endYearLabel").textContent = document.getElementById("endYearSlider").value;
-            generateDate();
-        }
 
         function formatDate(date) {
             const day = String(date.getDate()).padStart(2, '0');
@@ -62,57 +121,55 @@
             return `${day} ${month} ${year}`;
         }
 
-        function generateDate() {
-            const startYear = parseInt(document.getElementById("startYearSlider").value);
-            const endYear = parseInt(document.getElementById("endYearSlider").value);
-            const start = new Date(`${startYear}-01-01`).getTime();
-            const end = new Date(`${endYear}-01-01`).getTime();
+        function generateRandomDate() {
+            const startYear = parseInt(document.getElementById("startYear").value);
+            const endYear = parseInt(document.getElementById("endYear").value);
+            const start = new Date(startYear, 0, 1).getTime();
+            const end = new Date(endYear, 0, 1).getTime();
             const randomTime = start + Math.random() * (end - start);
-            currentDate = new Date(randomTime);
-            document.getElementById("dateDisplay").textContent = formatDate(currentDate);
+            const date = new Date(randomTime);
+            currentDate = date;
+            currentDay = date.getDay();
+            document.getElementById("dateDisplay").textContent = formatDate(date);
             startTime = performance.now();
         }
 
         function handleGuess(index) {
             const endTime = performance.now();
             const timeTaken = ((endTime - startTime) / 1000).toFixed(1);
-            const currentDay = currentDate.getDay();
-            const isCorrect = index === currentDay;
             totalCount++;
+            const isCorrect = index === currentDay;
             if (isCorrect) correctCount++;
-            document.getElementById("score").textContent = `Score: ${correctCount}/${totalCount}`;
+            document.getElementById("scoreDisplay").textContent = `Score: ${correctCount} / ${totalCount}`;
             const attemptText = `Attempt #${String(totalCount).padStart(2, '0')}: ${formatDate(currentDate)}, You guessed: ${days[index]}, Actual: ${days[currentDay]} → ${isCorrect ? "Correct" : "Incorrect"} (Time: ${timeTaken}s)`;
             const logEntry = document.createElement("div");
             logEntry.textContent = attemptText;
-            logEntry.className = isCorrect ? "correct" : "incorrect";
+            logEntry.className = "log-entry " + (isCorrect ? "correct" : "incorrect");
             document.getElementById("logBox").appendChild(logEntry);
-            if (!isCorrect) {
-                const month = currentDate.getMonth();
-                const year = currentDate.getFullYear();
-                window.open(`https://www.timeanddate.com/calendar/monthly.html?year=${year}&month=${month + 1}`, "_blank", "width=600,height=600");
-            }
-            generateDate();
+            generateRandomDate();
         }
 
         function clearLog() {
             document.getElementById("logBox").innerHTML = "";
             correctCount = 0;
             totalCount = 0;
-            document.getElementById("score").textContent = `Score: 0/0`;
-            generateDate();
+            document.getElementById("scoreDisplay").textContent = `Score: 0 / 0`;
+            generateRandomDate();
         }
 
         function downloadLog() {
-            const logText = Array.from(document.getElementById("logBox").children).map(div => div.textContent).join("\n");
+            const logText = Array.from(document.getElementById("logBox").children)
+                .map(entry => entry.textContent)
+                .join("\n");
             const blob = new Blob([logText], { type: "text/plain" });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = "game_log.txt";
+            link.download = "doomsday_game_log.txt";
             link.click();
         }
 
         function setupButtons() {
-            const container = document.getElementById("buttonContainer");
+            const container = document.getElementById("buttons");
             days.forEach((day, index) => {
                 const btn = document.createElement("button");
                 btn.textContent = `${index}-${day}`;
@@ -122,8 +179,18 @@
             });
         }
 
+        document.getElementById("startYear").addEventListener("input", function() {
+            document.getElementById("startYearLabel").textContent = this.value;
+            generateRandomDate();
+        });
+
+        document.getElementById("endYear").addEventListener("input", function() {
+            document.getElementById("endYearLabel").textContent = this.value;
+            generateRandomDate();
+        });
+
         setupButtons();
-        generateDate();
+        generateRandomDate();
     </script>
 </body>
 </html>
