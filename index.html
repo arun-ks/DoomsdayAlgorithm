@@ -9,7 +9,6 @@
             font-family: Arial, sans-serif;
             margin: 20px;
             padding: 0;
-            background-color: #f9f9f9;
         }
         h2 {
             text-align: center;
@@ -19,35 +18,34 @@
             text-align: center;
             margin: 20px 0;
         }
-        .button-container {
+        #buttonsContainer {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 10px;
             margin-bottom: 20px;
         }
-        .day-button {
-            padding: 10px 20px;
+        .dayButton {
+            flex: 1 1 100px;
+            padding: 10px;
             font-size: 1em;
             cursor: pointer;
-            border: none;
+            text-align: center;
+            border: 1px solid #ccc;
             border-radius: 5px;
-            background-color: #007bff;
-            color: white;
-            flex: 1 1 100px;
-            max-width: 150px;
+            background-color: #f0f0f0;
         }
-        .day-button:hover {
-            background-color: #0056b3;
+        .dayButton:hover {
+            background-color: #e0e0e0;
         }
-        #score {
+        #scoreDisplay {
             text-align: center;
             font-size: 1.2em;
             margin-bottom: 20px;
         }
         #logLabel {
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-top: 20px;
         }
         #logBox {
             width: 100%;
@@ -57,35 +55,31 @@
             padding: 10px;
             border: 1px solid #ccc;
             overflow-y: auto;
-            background-color: #fff;
+            white-space: pre-wrap;
         }
         @media (max-width: 600px) {
-            .day-button {
-                font-size: 0.9em;
-                padding: 8px 12px;
+            .dayButton {
                 flex: 1 1 45%;
-            }
-            #dateDisplay {
-                font-size: 1.5em;
+                font-size: 0.9em;
             }
         }
     </style>
 </head>
 <body>
     <h2>Calculate the Day of the Week</h2>
-    <div id="dateDisplay"></div>
-    <div class="button-container" id="buttons"></div>
-    <div id="score">Score: 0 / 0</div>
+    <div id="dateDisplay">Loading...</div>
+    <div id="buttonsContainer"></div>
+    <div id="scoreDisplay">Score: 0 / 0</div>
     <div id="logLabel">Game Log:</div>
     <div id="logBox"></div>
 
     <script>
         const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-        let correct = 0;
-        let total = 0;
-        let attempt = 0;
-        let startTime;
-        let currentDate;
+        let correctCount = 0;
+        let totalCount = 0;
+        let currentDate = null;
+        let currentDay = null;
+        let attemptStartTime = null;
 
         function formatDate(date) {
             const day = String(date.getDate()).padStart(2, '0');
@@ -96,55 +90,49 @@
             return `${day} ${month} ${year}`;
         }
 
-        function getRandomDate() {
+        function generateRandomDate() {
             const start = new Date("2025-01-01").getTime();
             const end = new Date("2027-01-01").getTime();
             const randomTime = start + Math.random() * (end - start);
-            return new Date(randomTime);
+            const date = new Date(randomTime);
+            currentDate = date;
+            currentDay = date.getDay();
+            attemptStartTime = performance.now();
+            document.getElementById("dateDisplay").textContent = formatDate(date);
         }
 
-        function updateDate() {
-            currentDate = getRandomDate();
-            document.getElementById("dateDisplay").textContent = formatDate(currentDate);
-            startTime = performance.now();
-        }
-
-        function handleGuess(index) {
-            const endTime = performance.now();
-            const timeTaken = ((endTime - startTime) / 1000).toFixed(1);
-            const actualDay = currentDate.getDay();
-            const guessedDay = index;
-            total++;
-            attempt++;
-            if (guessedDay === actualDay) {
-                correct++;
-                logMessage(`Attempt #${String(attempt).padStart(2, '0')}:   ${formatDate(currentDate)}, You guessed: ${days[guessedDay]}, Actual: ${days[actualDay]} → Correct (Time: ${timeTaken}s)`);
-            } else {
-                logMessage(`Attempt #${String(attempt).padStart(2, '0')}:   ${formatDate(currentDate)}, You guessed: ${days[guessedDay]}, Actual: ${days[actualDay]} → Incorrect (Time: ${timeTaken}s)`);
+        function handleGuess(guessIndex) {
+            const attemptEndTime = performance.now();
+            const timeTaken = ((attemptEndTime - attemptStartTime) / 1000).toFixed(1);
+            totalCount++;
+            const guessedDay = days[guessIndex];
+            const actualDay = days[currentDay];
+            let result = "Incorrect";
+            if (guessIndex === currentDay) {
+                correctCount++;
+                result = "Correct";
             }
-            document.getElementById("score").textContent = `Score: ${correct} / ${total}`;
-            updateDate();
-        }
-
-        function logMessage(message) {
+            document.getElementById("scoreDisplay").textContent = `Score: ${correctCount} / ${totalCount}`;
+            const logEntry = `Attempt #${String(totalCount).padStart(2, '0')}:   ${formatDate(currentDate)}, You guessed: ${guessedDay}, Actual: ${actualDay} → ${result} (Time: ${timeTaken}s)`;
             const logBox = document.getElementById("logBox");
-            logBox.textContent += message + "\n";
+            logBox.textContent += logEntry + "\n";
             logBox.scrollTop = logBox.scrollHeight;
+            generateRandomDate();
         }
 
-        function createButtons() {
-            const container = document.getElementById("buttons");
+        function setupButtons() {
+            const container = document.getElementById("buttonsContainer");
             days.forEach((day, index) => {
-                const btn = document.createElement("button");
-                btn.textContent = `${index}-${day}`;
-                btn.className = "day-button";
-                btn.onclick = () => handleGuess(index);
-                container.appendChild(btn);
+                const button = document.createElement("button");
+                button.className = "dayButton";
+                button.textContent = `${index}-${day}`;
+                button.onclick = () => handleGuess(index);
+                container.appendChild(button);
             });
         }
 
-        createButtons();
-        updateDate();
+        setupButtons();
+        generateRandomDate();
     </script>
 </body>
 </html>
