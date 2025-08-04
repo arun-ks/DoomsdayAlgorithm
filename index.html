@@ -1,82 +1,42 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Doomsday Method Practice</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            max-width: 900px;
-            margin: auto;
-        }
-        h2 {
-            font-size: 1.8em;
-        }
-        #dateDisplay {
-            font-size: 2em;
-            margin: 20px 0;
-        }
-        #buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .dayButton {
-            flex: 1 1 calc(25% - 10px);
-            min-width: 100px;
-            padding: 10px;
-            font-size: 1.2em;
-            cursor: pointer;
-        }
-        #score {
-            font-size: 1.2em;
-            margin-bottom: 10px;
-        }
-        #logLabel {
-            font-weight: bold;
-            margin-top: 20px;
-        }
-        #logBox {
-            max-width: 900px;
-            height: 200px;
-            overflow-y: auto;
-            border: 1px solid #ccc;
-            padding: 10px;
-            white-space: pre-wrap;
-            background-color: #f9f9f9;
-            margin-bottom: 10px;
-        }
-        .correct {
-            color: green;
-        }
-        .incorrect {
-            color: red;
-        }
-        #controls {
-            margin-bottom: 20px;
-        }
-        @media (max-width: 600px) {
-            .dayButton {
-                flex: 1 1 calc(50% - 10px);
-                font-size: 1em;
-            }
-            #dateDisplay {
-                font-size: 1.5em;
-            }
-        }
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 900px; margin: auto; }
+        h2 { font-size: 1.8em; }
+        #dateDisplay { font-size: 2em; margin: 20px 0; }
+        .button-container { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .day-button { padding: 10px 20px; font-size: 1.2em; cursor: pointer; }
+        #score { margin: 20px 0; font-size: 1.2em; }
+        #logLabel { font-weight: bold; margin-top: 30px; }
+        #logBox { width: 100%; max-width: 900px; height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; white-space: pre-wrap; background: #f9f9f9; }
+        .correct { color: green; }
+        .incorrect { color: red; }
+        .slider-container { margin: 20px 0; }
+        .slider-label { margin-right: 10px; }
     </style>
 </head>
 <body>
     <h2>Calculate the Day of the Week</h2>
-    <div id="dateDisplay"></div>
-    <div id="buttons"></div>
-    <div id="score">Score: 0/0</div>
-    <div id="controls">
-        <button onclick="clearLog()">Clear Log</button>
-        <button onclick="downloadLog()">Download Log</button>
+
+    <div class="slider-container">
+        <label class="slider-label">Start Year:</label>
+        <input type="range" id="startYearSlider" min="1600" max="2300" value="2025" oninput="updateYearLabels()">
+        <span id="startYearLabel">2025</span>
+        <br>
+        <label class="slider-label">End Year:</label>
+        <input type="range" id="endYearSlider" min="1600" max="2300" value="2027" oninput="updateYearLabels()">
+        <span id="endYearLabel">2027</span>
     </div>
+
+    <div id="dateDisplay">Date</div>
+    <div class="button-container" id="buttonContainer"></div>
+    <div id="score">Score: 0/0</div>
+    <button onclick="clearLog()">Clear Log</button>
+    <button onclick="downloadLog()">Download Log</button>
     <div id="logLabel">Game Log:</div>
     <div id="logBox"></div>
 
@@ -84,10 +44,14 @@
         const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
         let correctCount = 0;
         let totalCount = 0;
-        let currentDate;
-        let currentDay;
-        let startTime;
-        let logEntries = [];
+        let currentDate = null;
+        let startTime = null;
+
+        function updateYearLabels() {
+            document.getElementById("startYearLabel").textContent = document.getElementById("startYearSlider").value;
+            document.getElementById("endYearLabel").textContent = document.getElementById("endYearSlider").value;
+            generateDate();
+        }
 
         function formatDate(date) {
             const day = String(date.getDate()).padStart(2, '0');
@@ -98,16 +62,13 @@
             return `${day} ${month} ${year}`;
         }
 
-        function generateRandomDate() {
-            const start = new Date("2025-01-01").getTime();
-            const end = new Date("2027-01-01").getTime();
+        function generateDate() {
+            const startYear = parseInt(document.getElementById("startYearSlider").value);
+            const endYear = parseInt(document.getElementById("endYearSlider").value);
+            const start = new Date(`${startYear}-01-01`).getTime();
+            const end = new Date(`${endYear}-01-01`).getTime();
             const randomTime = start + Math.random() * (end - start);
-            return new Date(randomTime);
-        }
-
-        function updateDate() {
-            currentDate = generateRandomDate();
-            currentDay = currentDate.getDay();
+            currentDate = new Date(randomTime);
             document.getElementById("dateDisplay").textContent = formatDate(currentDate);
             startTime = performance.now();
         }
@@ -115,8 +76,9 @@
         function handleGuess(index) {
             const endTime = performance.now();
             const timeTaken = ((endTime - startTime) / 1000).toFixed(1);
-            totalCount++;
+            const currentDay = currentDate.getDay();
             const isCorrect = index === currentDay;
+            totalCount++;
             if (isCorrect) correctCount++;
             document.getElementById("score").textContent = `Score: ${correctCount}/${totalCount}`;
             const attemptText = `Attempt #${String(totalCount).padStart(2, '0')}: ${formatDate(currentDate)}, You guessed: ${days[index]}, Actual: ${days[currentDay]} → ${isCorrect ? "Correct" : "Incorrect"} (Time: ${timeTaken}s)`;
@@ -124,38 +86,44 @@
             logEntry.textContent = attemptText;
             logEntry.className = isCorrect ? "correct" : "incorrect";
             document.getElementById("logBox").appendChild(logEntry);
-            logEntries.push(attemptText);
-            updateDate();
+            if (!isCorrect) {
+                const month = currentDate.getMonth();
+                const year = currentDate.getFullYear();
+                window.open(`https://www.timeanddate.com/calendar/monthly.html?year=${year}&month=${month + 1}`, "_blank", "width=600,height=600");
+            }
+            generateDate();
         }
 
         function clearLog() {
             document.getElementById("logBox").innerHTML = "";
-            logEntries = [];
+            correctCount = 0;
+            totalCount = 0;
+            document.getElementById("score").textContent = `Score: 0/0`;
+            generateDate();
         }
 
         function downloadLog() {
-            const blob = new Blob([logEntries.join("\n")], { type: "text/plain" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "game_log.txt";
-            a.click();
-            URL.revokeObjectURL(url);
+            const logText = Array.from(document.getElementById("logBox").children).map(div => div.textContent).join("\n");
+            const blob = new Blob([logText], { type: "text/plain" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "game_log.txt";
+            link.click();
         }
 
         function setupButtons() {
-            const container = document.getElementById("buttons");
+            const container = document.getElementById("buttonContainer");
             days.forEach((day, index) => {
                 const btn = document.createElement("button");
                 btn.textContent = `${index}-${day}`;
-                btn.className = "dayButton";
+                btn.className = "day-button";
                 btn.onclick = () => handleGuess(index);
                 container.appendChild(btn);
             });
         }
 
         setupButtons();
-        updateDate();
+        generateDate();
     </script>
 </body>
 </html>
