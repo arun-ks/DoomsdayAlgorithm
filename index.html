@@ -80,6 +80,44 @@
                 flex: 1;
             }
         }
+   
+   
+        
+   .collapsibleHeader {
+     background-color: #777;
+     color: white;
+     cursor: pointer;
+     padding: 18px;
+     width: 100%;
+     border: none;
+     text-align: left;
+     outline: none;
+     font-size: 15px;
+  }  
+  .collapsibleActive, .collapsibleHeader:hover {
+    background-color: #555;
+  }  
+  .collapsibleHeader:after {
+    content: '\002B';   // Plus
+    color: white;
+    font-weight: bold;
+    float: right;
+    margin-left: 5px;
+  }  
+  .collapsibleActive:after {
+    content: "\2212";  // Minus
+  }  
+  .collapsibleContent {
+    padding: 0 18px;
+    max-height: 0;
+    font-family:Arial,Helvetica;
+    font-size:15px;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+    background-color: #f1f1f1;
+  }
+        
+        
     </style>
 </head>
 <body>
@@ -141,7 +179,7 @@
             const isCorrect = index === currentDay;
             if (isCorrect) correctCount++;
             document.getElementById("scoreDisplay").textContent = `Score: ${correctCount} / ${totalCount}`;
-            const attemptText = `Attempt #${String(totalCount).padStart(2, '0')}: ${formatDate(currentDate)}, You guessed: ${days[index]}, Actual: ${days[currentDay]} → ${isCorrect ? "Correct" : "Incorrect"} (Time: ${timeTaken}s)`;
+            const attemptText = `Attempt #${String(totalCount).padStart(2, '0')}: ${formatDate(currentDate)}, You guessed: ${days[index]}, Actual: ${days[currentDay]} ? ${isCorrect ? "Correct" : "Incorrect"} (Time: ${timeTaken}s)`;
             const logEntry = document.createElement("div");
             logEntry.textContent = attemptText;
             logEntry.className = "log-entry " + (isCorrect ? "correct" : "incorrect");
@@ -188,9 +226,50 @@
             document.getElementById("endYearLabel").textContent = this.value;
             generateRandomDate();
         });
+        
+  function collapsibleInit() {
+    var coll = document.getElementsByClassName("collapsibleHeader");
+    var i;
+    
+    for (i = 0; i < coll.length; i++) {
+      coll[i].addEventListener("click", function() {
+        this.classList.toggle("collapsibleActive");
+        var content = this.nextElementSibling;
+        if (content.style.maxHeight){
+          content.style.maxHeight = null;
+        } else {
+          content.style.maxHeight = content.scrollHeight + "px";
+        } 
+      });
+    }    
+  };        
+        
 
         setupButtons();
         generateRandomDate();
+    
     </script>
+    
+        <button class="collapsibleHeader">Rules</button>
+        <div class="collapsibleContent">
+          <p>  
+          	These dates fall on same day in a year </p>
+          	 <ul>
+          	   <li> 3-Jan (common years) or 4-Jan (leap years)</li>
+          	 	 <li> last day of February (0-Mar)</li>
+          	 	 <li> 4/4, 6/6, 8/8, 10/10, and 12/12, </li> 
+          	 	 <li> 5/9 & 9/5, 7/11 & 11/7 - "I work from 9 to 5 at the 7-11"</li> 
+          	 	 <li> Boxing Day(26-Dec), Halloween(31-Oct) and Valentine's Day(14-Feb) </li>   
+          	 </ul>	     	
+             
+        </div>
+        <button class="collapsibleHeader">Anchor Days </button>
+        <div class="collapsibleContent">
+          <p>  2025-Friday, 2026-Saturday, 2027-Sunday, 2028-Tuesday
+          </p>
+        </div>    
+        
+  <script>  collapsibleInit();</script>  
+    
 </body>
 </html>
